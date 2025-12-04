@@ -1,20 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Input } from "@/components/ui/input"
-import { GraduationCap, ChevronRight, CheckCircle2, XCircle, Download, User } from "lucide-react"
+import { GraduationCap, ChevronRight, CheckCircle2, XCircle, Download, User, Sparkles, AlertCircle } from "lucide-react"
 import jsPDF from "jspdf"
+import confetti from "canvas-confetti"
+import { motion } from "framer-motion"
+import { AchievementBadge } from "./achievement-badge"
+import { QuizTimer } from "./quiz-timer"
+import { StatisticsCard } from "./statistics-card"
+import { useToast } from "@/hooks/use-toast"
 
 const quizQuestions = [
   {
     id: 1,
     question: "¿Qué significa la sigla PESV?",
-    image: "/road-safety-strategic-plan-document.jpg",
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80",
     imageAlt: "Documento del Plan Estratégico de Seguridad Vial",
     options: [
       "Plan Especial de Seguridad Vehicular",
@@ -27,7 +33,7 @@ const quizQuestions = [
   {
     id: 2,
     question: "¿Cuál es la norma principal que regula el PESV en Colombia?",
-    image: "/colombia-law-1503-road-safety.jpg",
+    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&q=80",
     imageAlt: "Ley 1503 de 2011",
     options: ["Ley 769 de 2002", "Ley 1503 de 2011", "Decreto 1079 de 2015", "Ley 2050 de 2020"],
     correct: 1,
@@ -35,7 +41,7 @@ const quizQuestions = [
   {
     id: 3,
     question: "¿Cuál es uno de los riesgos críticos del PASO 8?",
-    image: "/speed-limit-sign-traffic-safety.jpg",
+    image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80",
     imageAlt: "Señal de límite de velocidad",
     options: ["Mantenimiento de oficinas", "Exceso de velocidad", "Compra de vehículos", "Turnos de trabajo"],
     correct: 1,
@@ -43,7 +49,7 @@ const quizQuestions = [
   {
     id: 4,
     question: "¿La Resolución 40595 de 2022 aplica a empresas con cuántos vehículos o más?",
-    image: "/corporate-fleet-vehicles-parking.jpg",
+    image: "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=800&q=80",
     imageAlt: "Flota de vehículos corporativos",
     options: ["5 o más vehículos", "10 o más vehículos", "20 o más vehículos", "50 o más vehículos"],
     correct: 1,
@@ -51,7 +57,7 @@ const quizQuestions = [
   {
     id: 5,
     question: "¿Cuántos pasos define la Resolución 40595 de 2022 para el PESV?",
-    image: "/pesv-24-steps-methodology.jpg",
+    image: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&q=80",
     imageAlt: "Metodología de 24 pasos del PESV",
     options: ["12 pasos", "18 pasos", "24 pasos", "30 pasos"],
     correct: 2,
@@ -59,7 +65,7 @@ const quizQuestions = [
   {
     id: 6,
     question: "¿Con qué sistema debe articularse obligatoriamente el PESV?",
-    image: "/occupational-safety-health-system.jpg",
+    image: "https://images.unsplash.com/photo-1581094271901-8022df4466f9?w=800&q=80",
     imageAlt: "Sistema de Gestión de Seguridad y Salud en el Trabajo",
     options: [
       "Sistema de gestión ambiental",
@@ -72,7 +78,7 @@ const quizQuestions = [
   {
     id: 7,
     question: "¿Cuál es el ciclo que sigue la metodología del PESV?",
-    image: "/phva-cycle-plan-do-check-act.jpg",
+    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&q=80",
     imageAlt: "Ciclo PHVA (Planear, Hacer, Verificar, Actuar)",
     options: [
       "Ciclo PDCA",
@@ -85,7 +91,7 @@ const quizQuestions = [
   {
     id: 8,
     question: "¿Cuáles son los niveles de implementación del PESV según el tamaño de la flota?",
-    image: "/pesv-implementation-levels.jpg",
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
     imageAlt: "Niveles de implementación del PESV",
     options: [
       "Básico, Intermedio y Experto",
@@ -98,7 +104,7 @@ const quizQuestions = [
   {
     id: 9,
     question: "¿Qué se evalúa en el PASO 10 del PESV?",
-    image: "/driver-training-competencies.jpg",
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80",
     imageAlt: "Capacitación y competencias de conductores",
     options: [
       "Mantenimiento de vehículos",
@@ -111,7 +117,7 @@ const quizQuestions = [
   {
     id: 10,
     question: "¿Qué se verifica en los PASOS 16 y 17 del PESV?",
-    image: "/vehicle-inspection-maintenance.jpg",
+    image: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=800&q=80",
     imageAlt: "Inspección y mantenimiento de vehículos",
     options: [
       "Documentación de conductores",
@@ -121,9 +127,140 @@ const quizQuestions = [
     ],
     correct: 1,
   },
+  {
+    id: 11,
+    question: "¿Cuál es la distancia mínima de seguridad recomendada entre vehículos en carretera?",
+    image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80",
+    imageAlt: "Vehículos manteniendo distancia de seguridad en carretera",
+    options: [
+      "1 segundo de separación",
+      "2 segundos de separación",
+      "3 segundos de separación o más",
+      "No hay distancia mínima establecida",
+    ],
+    correct: 2,
+  },
+  {
+    id: 12,
+    question: "¿Qué elemento de seguridad pasiva es OBLIGATORIO para todos los ocupantes del vehículo?",
+    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80",
+    imageAlt: "Cinturón de seguridad abrochado en vehículo",
+    options: [
+      "Airbag",
+      "Cinturón de seguridad",
+      "Apoyacabezas",
+      "Sistema ABS",
+    ],
+    correct: 1,
+  },
+  {
+    id: 13,
+    question: "¿Cuál es la principal causa de siniestralidad vial en Colombia según el PESV?",
+    image: "https://images.unsplash.com/photo-1534398079543-7ae6d016b86a?w=800&q=80",
+    imageAlt: "Conductor distraído con celular al volante",
+    options: [
+      "Fallas mecánicas",
+      "Condiciones climáticas",
+      "Error humano (exceso velocidad, distracción, alcohol)",
+      "Estado de las vías",
+    ],
+    correct: 2,
+  },
+  {
+    id: 14,
+    question: "¿Con qué periodicidad mínima se debe realizar la revisión técnico-mecánica para vehículos particulares?",
+    image: "https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=800&q=80",
+    imageAlt: "Centro de revisión técnico-mecánica",
+    options: [
+      "Cada 6 meses",
+      "Anual",
+      "Cada 2 años (según antigüedad del vehículo)",
+      "Cada 5 años",
+    ],
+    correct: 2,
+  },
+  {
+    id: 15,
+    question: "¿Qué significa una señal de tránsito con fondo amarillo?",
+    image: "https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=800&q=80",
+    imageAlt: "Señales de tránsito preventivas amarillas",
+    options: [
+      "Señal informativa",
+      "Señal reglamentaria",
+      "Señal preventiva o de advertencia",
+      "Señal de obra",
+    ],
+    correct: 2,
+  },
+  {
+    id: 16,
+    question: "¿Cuál es el límite máximo de alcohol en sangre permitido para conductores en Colombia?",
+    image: "https://images.unsplash.com/photo-1532634922-8fe0b757fb13?w=800&q=80",
+    imageAlt: "Alcoholímetro para prueba de alcoholemia",
+    options: [
+      "0.5 gramos por litro de sangre",
+      "0.2 gramos por litro de sangre",
+      "0.0 gramos (tolerancia cero)",
+      "1.0 gramos por litro de sangre",
+    ],
+    correct: 2,
+  },
+  {
+    id: 17,
+    question: "¿Qué indica el triángulo de señalización en caso de emergencia o accidente?",
+    image: "https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=800&q=80",
+    imageAlt: "Triángulos de señalización en carretera",
+    options: [
+      "Vehículo estacionado temporalmente",
+      "Advertencia de peligro o vehículo averiado",
+      "Zona de carga y descarga",
+      "Desvío de ruta",
+    ],
+    correct: 1,
+  },
+  {
+    id: 18,
+    question: "¿Qué tipo de luces debe usar un vehículo en condiciones de lluvia intensa o niebla?",
+    image: "https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=800&q=80",
+    imageAlt: "Vehículo conduciendo en lluvia con luces encendidas",
+    options: [
+      "Luces altas solamente",
+      "Luces exploradoras",
+      "Luces bajas y exploradoras (si tiene)",
+      "No es necesario usar luces",
+    ],
+    correct: 2,
+  },
+  {
+    id: 19,
+    question: "¿Cuál es la función principal del Sistema de Frenos ABS?",
+    image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=80",
+    imageAlt: "Sistema de frenos ABS en vehículo moderno",
+    options: [
+      "Aumentar la velocidad de frenado",
+      "Evitar el bloqueo de las ruedas durante el frenado",
+      "Reducir el consumo de combustible",
+      "Mejorar la aceleración",
+    ],
+    correct: 1,
+  },
+  {
+    id: 20,
+    question: "¿Qué debe hacer un conductor al aproximarse a un paso peatonal?",
+    image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80",
+    imageAlt: "Paso de cebra peatonal en zona urbana",
+    options: [
+      "Acelerar para pasar rápido",
+      "Disminuir velocidad y ceder el paso a peatones",
+      "Tocar el claxon para advertir",
+      "Mantener la velocidad constante",
+    ],
+    correct: 1,
+  },
 ]
 
 export default function QuizSection() {
+  const { toast } = useToast()
   const [userName, setUserName] = useState("")
   const [isStarted, setIsStarted] = useState(false)
   const [answers, setAnswers] = useState<Record<number, number>>({})
@@ -136,7 +273,52 @@ export default function QuizSection() {
   }
 
   const handleSubmit = () => {
+    // Verificar si faltan preguntas por responder
+    const unansweredCount = quizQuestions.length - Object.keys(answers).length
+    if (unansweredCount > 0) {
+      toast({
+        title: "⚠️ Evaluación incompleta",
+        description: `Debes responder todas las preguntas. Te faltan ${unansweredCount} pregunta${unansweredCount > 1 ? 's' : ''} por completar.`,
+        variant: "destructive",
+      })
+      return
+    }
+
     setShowResults(true)
+    
+    // Scroll suave al panel de resultados
+    setTimeout(() => {
+      const resultsElement = document.getElementById('quiz-results-panel')
+      if (resultsElement) {
+        resultsElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }, 100)
+    
+    // Lanzar confetti si aprueba
+    if (percentage >= 60) {
+      const duration = percentage >= 80 ? 3000 : 2000
+      const particleCount = percentage >= 90 ? 150 : 100
+      
+      confetti({
+        particleCount,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: percentage >= 80 ? ['#0066cc', '#FFD700', '#FFA500'] : ['#0066cc', '#00cc66'],
+      })
+      
+      // Efecto extra para calificación perfecta
+      if (percentage === 100) {
+        setTimeout(() => {
+          confetti({
+            particleCount: 100,
+            spread: 160,
+            origin: { y: 0.6 },
+            colors: ['#FFD700', '#FFA500', '#FF6B6B'],
+            shapes: ['star'],
+          })
+        }, 500)
+      }
+    }
   }
 
   const correctCount = Object.entries(answers).filter(([questionId, answer]) => {
@@ -390,7 +572,7 @@ export default function QuizSection() {
               <Button
                 onClick={handleStart}
                 disabled={!userName.trim()}
-                className="w-full rounded-full bg-gradient-to-r from-[#0066cc] to-[#004a99] shadow-lg"
+                className="w-full rounded-full bg-gradient-to-r from-[#0066cc] to-[#004a99] shadow-lg transition-all hover:shadow-xl hover:scale-105"
               >
                 Iniciar evaluación
                 <ChevronRight className="ml-2 h-4 w-4" />
@@ -412,6 +594,8 @@ export default function QuizSection() {
 
   return (
     <section id="quiz" className="space-y-8 py-12">
+      <QuizTimer isActive={isStarted && !showResults} />
+      
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <GraduationCap className="h-5 w-5 text-[#0066cc]" />
@@ -495,19 +679,27 @@ export default function QuizSection() {
               </div>
             ))}
 
-            <Button
-              onClick={handleSubmit}
-              disabled={Object.keys(answers).length < quizQuestions.length}
-              className="w-full rounded-full bg-gradient-to-r from-[#0066cc] to-[#004a99] shadow-lg"
+            <motion.div
+              animate={
+                Object.keys(answers).length === quizQuestions.length
+                  ? { scale: [1, 1.02, 1], boxShadow: ['0 0 0 0 rgba(0, 102, 204, 0.4)', '0 0 0 10px rgba(0, 102, 204, 0)', '0 0 0 0 rgba(0, 102, 204, 0)'] }
+                  : {}
+              }
+              transition={{ duration: 1.5, repeat: Object.keys(answers).length === quizQuestions.length ? Infinity : 0 }}
             >
-              Evaluar respuestas
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
+              <Button
+                onClick={handleSubmit}
+                className="w-full rounded-full bg-gradient-to-r from-[#0066cc] to-[#004a99] shadow-lg transition-all hover:shadow-xl"
+              >
+                Evaluar respuestas
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </motion.div>
           </div>
         </Card>
 
         <div className="space-y-6">
-          <Card className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white">
+          <Card id="quiz-results-panel" className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <GraduationCap className="h-5 w-5" />
@@ -515,15 +707,50 @@ export default function QuizSection() {
               </div>
 
               {showResults ? (
-                <div className="space-y-4">
-                  <div className="rounded-lg bg-slate-800/50 p-6 text-center">
+                <div className="space-y-6">
+                  {/* Achievement Badge with Animation */}
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", duration: 0.8, delay: 0.2 }}
+                  >
+                    <AchievementBadge score={percentage} />
+                  </motion.div>
+
+                  {/* Score Display */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="rounded-lg bg-slate-800/50 p-6 text-center"
+                  >
                     <div className="text-5xl font-bold text-blue-400">{percentage}%</div>
                     <div className="mt-2 text-sm text-slate-300">
                       {correctCount} de {quizQuestions.length} respuestas correctas
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="space-y-2 text-sm">
+                  {/* Statistics Comparison */}
+                  {percentage >= 60 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <StatisticsCard 
+                        userScore={percentage}
+                        userName={conductorName || "Conductor"}
+                      />
+                    </motion.div>
+                  )}
+
+                  {/* Status Information */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                    className="space-y-2 text-sm"
+                  >
                     <p className="text-slate-300">
                       <strong className="text-blue-300">Calificación:</strong>{" "}
                       {percentage >= 80 ? "Excelente" : percentage >= 60 ? "Aprobado" : "Requiere refuerzo"}
@@ -532,16 +759,23 @@ export default function QuizSection() {
                       <strong className="text-blue-300">Estado:</strong>{" "}
                       {percentage >= 60 ? "Conductor certificado" : "Requiere capacitación adicional"}
                     </p>
-                  </div>
+                  </motion.div>
 
-                  <Button
-                    onClick={handleDownloadPDF}
-                    variant="outline"
-                    className="w-full border-slate-600 bg-slate-800/50 text-white hover:bg-slate-700"
+                  {/* Download Button */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1 }}
                   >
-                    <Download className="mr-2 h-4 w-4" />
-                    Descargar certificado PDF
-                  </Button>
+                    <Button
+                      onClick={handleDownloadPDF}
+                      variant="outline"
+                      className="w-full border-slate-600 bg-slate-800/50 text-white hover:bg-slate-700"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Descargar certificado PDF
+                    </Button>
+                  </motion.div>
                 </div>
               ) : (
                 <div className="space-y-3 text-sm text-slate-300">

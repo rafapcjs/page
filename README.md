@@ -35,12 +35,29 @@ La plataforma incluye una **sección completa** explicando:
 
 ### 3. Elementos Digitales - Evaluación de Conductores ✓
 
-**Sistema de Quiz Interactivo:**
+**Sistema de Quiz Interactivo con Características Avanzadas:**
 - ✅ 10 preguntas sobre PESV y Resolución 40595
 - ✅ Evaluación automática con calificación (%)
 - ✅ **Certificado PDF descargable** con resultados
 - ✅ Retroalimentación pregunta por pregunta
 - ✅ Registro de conductor y fecha
+
+**🎉 CARACTERÍSTICAS PREMIUM:**
+- 🏆 **Sistema de Logros Animados** - 6 niveles de certificación con iconos y colores distintivos
+- ⏱️ **Cronómetro Inteligente** - Seguimiento de tiempo con alertas visuales
+- 📊 **Estadísticas Comparativas** - Comparación automática con promedio de empresa (72%)
+- 🎊 **Celebraciones Interactivas** - Efectos de confetti al aprobar (intensidad variable según calificación)
+- ✨ **Animaciones Fluidas** - Transiciones suaves con Framer Motion
+- 📈 **Progreso Visual** - Barra de progreso en tiempo real
+- 🎯 **Scroll Automático** - Navegación inteligente a resultados
+
+**Niveles de Logros:**
+- 🥇 Perfecto (100%) - Oro brillante con estrellas
+- 🏅 Excelente (90%+) - Oro con trofeo
+- 🎖️ Muy Bueno (80%+) - Plata con medalla
+- ✅ Aprobado (70%+) - Verde con check
+- 📘 Suficiente (60%+) - Azul básico
+- ⚠️ Requiere Capacitación (<60%) - Amarillo advertencia
 
 **Temas evaluados:**
 - Definición y normativa del PESV
@@ -98,6 +115,9 @@ La plataforma incluye una **sección completa** explicando:
 - **Lenguaje:** TypeScript
 - **UI:** React 19 + Tailwind CSS 4
 - **Componentes:** Radix UI + shadcn/ui
+- **PDF:** jsPDF 3.0.4
+- **Animaciones:** Framer Motion 12.23.25
+- **Efectos:** Canvas Confetti 1.9.4
 - **PDF:** jsPDF para certificados
 - **Responsive:** Mobile, Tablet, Desktop
 
