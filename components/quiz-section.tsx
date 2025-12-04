@@ -274,13 +274,31 @@ export default function QuizSection() {
 
   const handleSubmit = () => {
     // Verificar si faltan preguntas por responder
-    const unansweredCount = quizQuestions.length - Object.keys(answers).length
-    if (unansweredCount > 0) {
+    const unansweredQuestions = quizQuestions.filter((q) => !(q.id in answers))
+    
+    if (unansweredQuestions.length > 0) {
+      const questionNumbers = unansweredQuestions.map((q) => q.id).join(', ')
+      const questionList = unansweredQuestions.map((q, idx) => 
+        `${idx + 1}. Pregunta ${q.id}: ${q.question.substring(0, 60)}...`
+      ).join('\n')
+      
       toast({
-        title: "⚠️ Evaluación incompleta",
-        description: `Debes responder todas las preguntas. Te faltan ${unansweredCount} pregunta${unansweredCount > 1 ? 's' : ''} por completar.`,
+        title: `⚠️ Faltan ${unansweredQuestions.length} pregunta${unansweredQuestions.length > 1 ? 's' : ''}`,
+        description: `Preguntas sin responder: ${questionNumbers}\n\n${questionList}`,
         variant: "destructive",
+        duration: 10000,
       })
+      
+      // Scroll a la primera pregunta sin responder
+      const firstUnanswered = document.getElementById(`question-${unansweredQuestions[0].id}`)
+      if (firstUnanswered) {
+        firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        firstUnanswered.classList.add('ring-2', 'ring-red-500', 'ring-offset-2')
+        setTimeout(() => {
+          firstUnanswered.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2')
+        }, 3000)
+      }
+      
       return
     }
 
@@ -524,9 +542,34 @@ export default function QuizSection() {
       align: "center",
     })
 
-    // Save PDF
+    // Save PDF - Compatible con móvil y PC
     const fileName = `Evaluacion_PESV_${userName.replace(/\s+/g, "_")}_${new Date().getTime()}.pdf`
-    doc.save(fileName)
+    
+    // Detectar si es móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    
+    if (isMobile) {
+      // Para móviles: usar blob y createObjectURL
+      const pdfBlob = doc.output('blob')
+      const blobUrl = URL.createObjectURL(pdfBlob)
+      
+      // Crear link temporal
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = fileName
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click()
+      
+      // Limpiar
+      setTimeout(() => {
+        document.body.removeChild(link)
+        URL.revokeObjectURL(blobUrl)
+      }, 100)
+    } else {
+      // Para PC: método tradicional
+      doc.save(fileName)
+    }
   }
 
   if (!isStarted) {
@@ -615,7 +658,7 @@ export default function QuizSection() {
         <Card className="p-6">
           <div className="space-y-8">
             {quizQuestions.map((question, idx) => (
-              <div key={question.id} className="space-y-4">
+              <div key={question.id} id={`question-${question.id}`} className="space-y-4 scroll-mt-24 transition-all duration-300">
                 <div className="flex gap-3">
                   <Badge className="h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0066cc]">
                     {idx + 1}
