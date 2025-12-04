@@ -545,31 +545,82 @@ export default function QuizSection() {
     // Save PDF - Compatible con móvil y PC
     const fileName = `Evaluacion_PESV_${userName.replace(/\s+/g, "_")}_${new Date().getTime()}.pdf`
     
-    // Detectar si es móvil
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    
-    if (isMobile) {
-      // Para móviles: usar blob y createObjectURL
+    try {
+      // Generar el blob del PDF
       const pdfBlob = doc.output('blob')
-      const blobUrl = URL.createObjectURL(pdfBlob)
       
-      // Crear link temporal
-      const link = document.createElement('a')
-      link.href = blobUrl
-      link.download = fileName
-      link.style.display = 'none'
-      document.body.appendChild(link)
-      link.click()
+      // Detectar capacidades del navegador
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
       
-      // Limpiar
-      setTimeout(() => {
-        document.body.removeChild(link)
-        URL.revokeObjectURL(blobUrl)
-      }, 100)
-    } else {
-      // Para PC: método tradicional
+      if (isIOS) {
+        // Para iOS: Abrir en nueva ventana (Safari no soporta download bien)
+        const pdfDataUri = doc.output('dataurlstring')
+        const newWindow = window.open()
+        if (newWindow) {
+          newWindow.document.write(`
+            <html>
+              <head>
+                <title>${fileName}</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <style>
+                  body { margin: 0; padding: 0; }
+                  iframe { border: none; width: 100vw; height: 100vh; }
+                </style>
+              </head>
+              <body>
+                <iframe src="${pdfDataUri}"></iframe>
+              </body>
+            </html>
+          `)
+        } else {
+          // Fallback: descargar directamente
+          const link = document.createElement('a')
+          link.href = pdfDataUri
+          link.download = fileName
+          link.click()
+        }
+      } else if (navigator.share && isMobile) {
+        // Para Android moderno: usar Web Share API
+        const file = new File([pdfBlob], fileName, { type: 'application/pdf' })
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Certificado PESV',
+            text: `Certificado de evaluación PESV - ${userName}`
+          })
+        } else {
+          // Fallback: download tradicional
+          downloadPDFBlob(pdfBlob, fileName)
+        }
+      } else {
+        // Para PC y móviles sin share API
+        downloadPDFBlob(pdfBlob, fileName)
+      }
+    } catch (error) {
+      console.error('Error al descargar PDF:', error)
+      // Fallback final
       doc.save(fileName)
     }
+  }
+  
+  // Función helper para descargar blob
+  const downloadPDFBlob = (blob: Blob, filename: string) => {
+    const blobUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = filename
+    link.style.display = 'none'
+    
+    document.body.appendChild(link)
+    link.click()
+    
+    // Limpiar después de un momento
+    setTimeout(() => {
+      document.body.removeChild(link)
+      URL.revokeObjectURL(blobUrl)
+    }, 100)
   }
 
   if (!isStarted) {
