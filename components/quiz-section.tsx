@@ -41,8 +41,8 @@ const quizQuestions = [
   {
     id: 3,
     question: "¿Cuál es uno de los riesgos críticos del PASO 8?",
-    image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80",
-    imageAlt: "Señal de límite de velocidad",
+    image: "/img3.jpeg",
+    imageAlt: "Escena de tráfico urbano con vehículos y ciclistas",
     options: ["Mantenimiento de oficinas", "Exceso de velocidad", "Compra de vehículos", "Turnos de trabajo"],
     correct: 1,
   },
@@ -130,8 +130,8 @@ const quizQuestions = [
   {
     id: 11,
     question: "¿Cuál es la distancia mínima de seguridad recomendada entre vehículos en carretera?",
-    image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&q=80",
-    imageAlt: "Vehículos manteniendo distancia de seguridad en carretera",
+    image: "/img11.jpeg",
+    imageAlt: "Tráfico pesado en carretera con vehículos de carga",
     options: [
       "1 segundo de separación",
       "2 segundos de separación",
@@ -169,8 +169,8 @@ const quizQuestions = [
   {
     id: 14,
     question: "¿Con qué periodicidad mínima se debe realizar la revisión técnico-mecánica para vehículos particulares?",
-    image: "https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=800&q=80",
-    imageAlt: "Centro de revisión técnico-mecánica",
+    image: "/img14.jpeg",
+    imageAlt: "Técnico realizando inspección y mantenimiento de vehículo",
     options: [
       "Cada 6 meses",
       "Anual",
@@ -182,8 +182,8 @@ const quizQuestions = [
   {
     id: 15,
     question: "¿Qué significa una señal de tránsito con fondo amarillo?",
-    image: "https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=800&q=80",
-    imageAlt: "Señales de tránsito preventivas amarillas",
+    image: "/img15.jpeg",
+    imageAlt: "Señales de tránsito informativas de diferentes colores",
     options: [
       "Señal informativa",
       "Señal reglamentaria",
@@ -195,8 +195,8 @@ const quizQuestions = [
   {
     id: 16,
     question: "¿Cuál es el límite máximo de alcohol en sangre permitido para conductores en Colombia?",
-    image: "https://images.unsplash.com/photo-1532634922-8fe0b757fb13?w=800&q=80",
-    imageAlt: "Alcoholímetro para prueba de alcoholemia",
+    image: "/img16.jpeg",
+    imageAlt: "Capacitación sobre alcohol y conducción",
     options: [
       "0.5 gramos por litro de sangre",
       "0.2 gramos por litro de sangre",
@@ -208,8 +208,8 @@ const quizQuestions = [
   {
     id: 17,
     question: "¿Qué indica el triángulo de señalización en caso de emergencia o accidente?",
-    image: "https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=800&q=80",
-    imageAlt: "Triángulos de señalización en carretera",
+    image: "/img17.jpeg",
+    imageAlt: "Operativo de control de tránsito nocturno con señalización",
     options: [
       "Vehículo estacionado temporalmente",
       "Advertencia de peligro o vehículo averiado",
@@ -221,8 +221,8 @@ const quizQuestions = [
   {
     id: 18,
     question: "¿Qué tipo de luces debe usar un vehículo en condiciones de lluvia intensa o niebla?",
-    image: "https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=800&q=80",
-    imageAlt: "Vehículo conduciendo en lluvia con luces encendidas",
+    image: "/img18.jpeg",
+    imageAlt: "Motocicletas circulando de noche con luces encendidas",
     options: [
       "Luces altas solamente",
       "Luces exploradoras",
@@ -247,8 +247,8 @@ const quizQuestions = [
   {
     id: 20,
     question: "¿Qué debe hacer un conductor al aproximarse a un paso peatonal?",
-    image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80",
-    imageAlt: "Paso de cebra peatonal en zona urbana",
+    image: "/img20.jpeg",
+    imageAlt: "Paso peatonal con señalización en zona urbana",
     options: [
       "Acelerar para pasar rápido",
       "Disminuir velocidad y ceder el paso a peatones",
@@ -346,7 +346,7 @@ export default function QuizSection() {
 
   const percentage = Math.round((correctCount / quizQuestions.length) * 100)
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",

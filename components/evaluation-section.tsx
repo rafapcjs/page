@@ -4,10 +4,40 @@ import { CheckCircle2, XCircle, AlertTriangle, ClipboardCheck } from "lucide-rea
 
 const evaluations = [
   {
-    element: "Política de seguridad vial",
+    element: "Plan Estratégico de Seguridad Vial (documento completo)",
     status:
-      "Existe una política de seguridad vial conocida, pero requiere actualización y articulación con metas e indicadores.",
+      "Existe una política de seguridad vial conocida, pero el documento PESV completo requiere actualización y formalización.",
     type: "partial" as const,
+  },
+  {
+    element: "Cronograma de implementación del PESV",
+    status: "No se ha documentado un cronograma formal de implementación con fechas y responsables definidos.",
+    type: "no" as const,
+  },
+  {
+    element: "Matriz de identificación de peligros, valoración de riesgos y controles",
+    status: "No existe matriz documentada que identifique peligros viales, valore riesgos y determine controles aplicables.",
+    type: "no" as const,
+  },
+  {
+    element: "Listado de procedimientos, programas o protocolos aplicables",
+    status: "No se cuenta con listado formal de procedimientos y protocolos de seguridad vial operacionales.",
+    type: "no" as const,
+  },
+  {
+    element: "Estadísticas de accidentalidad vial últimos 2 años + Certificación ARL",
+    status: "No se dispone de estadísticas consolidadas de accidentalidad ni certificación ARL del año en curso.",
+    type: "no" as const,
+  },
+  {
+    element: "Certificación ARL - % cumplimiento Estándares Mínimos SG-SST",
+    status: "Falta certificación ARL indicando porcentaje de cumplimiento y radicación al fondo de riesgos laborales.",
+    type: "no" as const,
+  },
+  {
+    element: "Información actualizada de personal y flota vehicular",
+    status: "No se tiene documentación actualizada de: total trabajadores, conductores, vehículos y tipos de vehículos.",
+    type: "no" as const,
   },
   {
     element: "Objetivos y metas del PESV",
