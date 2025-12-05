@@ -1,6 +1,9 @@
+"use client"
+
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { AlertCircle, FileText, Target } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { AlertCircle, FileText, Target, Download } from "lucide-react"
 
 export default function ResolutionSection() {
   const requirements = [
@@ -36,6 +39,22 @@ export default function ResolutionSection() {
           empresas con flotas y conductores a cargo. No se trata solo de tener una política, sino de implementar una
           metodología completa con diagnóstico, objetivos, programas e indicadores.
         </p>
+        <div className="pt-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => {
+              const link = document.createElement('a')
+              link.href = 'https://www.mintransporte.gov.co/documentos/15/resoluciones-de-2022/'
+              link.target = '_blank'
+              link.rel = 'noopener noreferrer'
+              link.click()
+            }}
+          >
+            <Download className="h-4 w-4" />
+            Descargar Resolución 40595 de 2022 (PDF)
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
